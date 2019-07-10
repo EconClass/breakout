@@ -29,13 +29,70 @@ const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
-// let hp = 3;
 
 
 //======================= Event Listeners =======================
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 document.addEventListener("mousemove", mouseMoveHandler, false);
+
+
+//======================= Bricks =======================
+let bricks = [];
+let levelCap = 0;
+for(let c = 0; c < brickColumnCount; c++) {
+  bricks[c] = [];
+  for(let r = 0; r < brickRowCount; r++) {
+    let brickLives = randomNonZeroInteger(1,4);
+    bricks[c][r] = { x: 0, y: 0, status: brickLives };
+    levelCap += brickLives;
+  }
+}
+
+function drawBricks() {
+  const brickColors = [
+    'hsla(330, 100%, 58%, 0.92)',
+    'hsla(147, 100%, 58%, 0.92)',
+    'hsla(57, 100%, 58%, 0.92)'
+  ];
+
+  for(let c = 0; c < brickColumnCount; c++) {
+    for(let r = 0; r < brickRowCount; r++) {
+      if(bricks[c][r].status > 0) {
+        let brickX = (c * (brickWidth+brickPadding)) + brickOffsetLeft;
+        let brickY = (r * (brickHeight+brickPadding)) + brickOffsetTop;
+        let color = brickColors[bricks[c][r].status - 1];
+        bricks[c][r].x = brickX;
+        bricks[c][r].y = brickY;
+        ctx.beginPath();
+        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+  }
+}
+
+function collisionDetection() {
+  for(let c = 0; c < brickColumnCount; c++) {
+    for(let r = 0; r < brickRowCount; r++) {
+      let b = bricks[c][r];
+      if(b.status > 0) {
+        if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+          dy = -dy;
+          ballColor = randomColor();
+          b.status--;
+          score++;
+          if(score == levelCap) {
+            alert("YOU WIN, CONGRATULATIONS!");
+            document.location.reload();
+          }
+        }
+      }
+    }
+  }
+}
 
 
 //======================= Ball =======================
@@ -126,64 +183,6 @@ function mouseMoveHandler(e) {
 }
 
 
-//======================= Bricks =======================
-let bricks = [];
-let levelCap = 0;
-for(let c = 0; c < brickColumnCount; c++) {
-  bricks[c] = [];
-  for(let r = 0; r < brickRowCount; r++) {
-    let brickLives = randomNonZeroInteger(1,4);
-    bricks[c][r] = { x: 0, y: 0, status: brickLives };
-    levelCap += brickLives;
-  }
-}
-
-function drawBricks() {
-  const brickColors = [
-    'hsla(330, 100%, 58%, 0.92)',
-    'hsla(147, 100%, 58%, 0.92)',
-    'hsla(57, 100%, 58%, 0.92)'
-  ];
-
-  for(let c = 0; c < brickColumnCount; c++) {
-    for(let r = 0; r < brickRowCount; r++) {
-      if(bricks[c][r].status > 0) {
-        let brickX = (c * (brickWidth+brickPadding)) + brickOffsetLeft;
-        let brickY = (r * (brickHeight+brickPadding)) + brickOffsetTop;
-        let color = brickColors[bricks[c][r].status - 1];
-        bricks[c][r].x = brickX;
-        bricks[c][r].y = brickY;
-        ctx.beginPath();
-        ctx.rect(brickX, brickY, brickWidth, brickHeight);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.closePath();
-      }
-    }
-  }
-}
-
-function collisionDetection() {
-  for(let c = 0; c < brickColumnCount; c++) {
-    for(let r = 0; r < brickRowCount; r++) {
-      let b = bricks[c][r];
-      if(b.status > 0) {
-        if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
-          dy = -dy;
-          ballColor = randomColor();
-          b.status--;
-          score++;
-          if(score == levelCap) {
-            alert("YOU WIN, CONGRATULATIONS!");
-            document.location.reload();
-          }
-        }
-      }
-    }
-  }
-}
-
-
 //======================= Game Mechanics =======================
 function drawScore() {
   ctx.font = "16px Arial";
@@ -200,6 +199,7 @@ function drawLives() {
 
 //======================= Draw =======================
 function draw() {
+  // Initial game state
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
   drawPaddle();
@@ -252,6 +252,7 @@ function draw() {
   x += dx;
   y += dy;
   
+  // Update frame if changes detected by browser
   requestAnimationFrame(draw);
 };
 
