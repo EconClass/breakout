@@ -1,6 +1,9 @@
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
+
+// Game variables
 let score = 0;
+let lives = 3;
 
 // Paddle variables
 let paddleHeight = 10;
@@ -157,7 +160,6 @@ function collisionDetection() {
           if(score == brickRowCount*brickColumnCount) {
             alert("YOU WIN, CONGRATULATIONS!");
             document.location.reload();
-            clearInterval(interval); // Needed for Chrome to end game
           }
         }
       }
@@ -166,7 +168,7 @@ function collisionDetection() {
 }
 
 
-//======================= Score =======================
+//======================= Game Mechanics =======================
 
 function drawScore() {
   ctx.font = "16px Arial";
@@ -174,15 +176,30 @@ function drawScore() {
   ctx.fillText(`Score: ${score}`, 8, 20);
 }
 
+function drawLives() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "white";
+  ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
+}
+
 
 //======================= Draw =======================
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
-  drawBall();
   drawPaddle();
+  drawBall();
   drawScore();
+  drawLives();
   collisionDetection();
+
+  // Paddle movement
+  if(rightPressed && paddleX < canvas.width - paddleWidth) {
+    paddleX += 7;
+  }
+  else if(leftPressed && paddleX > 0) {
+    paddleX -= 7;
+  }
 
   // Ball Horizontal Movement
   if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
@@ -200,23 +217,27 @@ function draw() {
     if(x > paddleX && x < paddleX + paddleWidth) {
       dy = -dy;
     } else {
-      // Ball not caught.
-      alert("GAME OVER");
-      document.location.reload();
-      clearInterval(interval);
+      lives --;
+      if(!lives) {
+        // Ball not caught.
+        alert("GAME OVER");
+        document.location.reload();
+      } else {
+        x = canvas.width/2;
+        y = canvas.height-30;
+        dx = 2;
+        dy = -2;
+        paddleX = (canvas.width-paddleWidth)/2;
+      }
     }
   };
 
+  // Update Ball position
   x += dx;
   y += dy;
   
-  // Paddle movement
-  if(rightPressed && paddleX < canvas.width - paddleWidth) {
-    paddleX += 7;
-  }
-  else if(leftPressed && paddleX > 0) {
-    paddleX -= 7;
-  }
+  requestAnimationFrame(draw);
 };
 
-let interval = setInterval(draw, 10);
+// let interval = setInterval(draw, 10);
+draw();
