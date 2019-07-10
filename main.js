@@ -17,12 +17,12 @@ let ballRadius = 10;
 let ballColor = "#0095DD";
 let x = canvas.width / 2;
 let y = canvas.height - 30;
-let dx = 3;
-let dy = -3;
+let dx = randomNonZeroInteger(-5,5);
+let dy = -5;
 
 // Block variables
 const brickRowCount = 3;
-const brickColumnCount = 5;
+const brickColumnCount = Math.floor(canvas.width / 100);
 const brickWidth = 75;
 const brickHeight = 20;
 const brickPadding = 10;
@@ -81,6 +81,14 @@ function randomColor() {
   let color = `hsla(${hue}, 100%, 50%, 0.87)`;
 
   return color;
+}
+
+function randomNonZeroInteger(min, max) {
+  let value = Math.floor(Math.random() * (max - min) + min)
+  if (value == 0) {
+    value++
+  }
+  return value;
 }
 
 
@@ -157,7 +165,7 @@ function collisionDetection() {
           ballColor = randomColor();
           b.status = 0;
           score++;
-          if(score == brickRowCount*brickColumnCount) {
+          if(score == brickRowCount * brickColumnCount) {
             alert("YOU WIN, CONGRATULATIONS!");
             document.location.reload();
           }
@@ -216,6 +224,7 @@ function draw() {
     // Bounce off of paddle
     if(x > paddleX && x < paddleX + paddleWidth) {
       dy = -dy;
+      ballColor = randomColor();
     } else {
       lives --;
       if(!lives) {
@@ -225,9 +234,9 @@ function draw() {
       } else {
         x = canvas.width/2;
         y = canvas.height-30;
-        dx = 2;
-        dy = -2;
-        paddleX = (canvas.width-paddleWidth)/2;
+        dx = randomNonZeroInteger(-5,5);
+        dy = -5;
+        paddleX = (canvas.width-paddleWidth) / 2;
       }
     }
   };
@@ -239,5 +248,4 @@ function draw() {
   requestAnimationFrame(draw);
 };
 
-// let interval = setInterval(draw, 10);
 draw();
