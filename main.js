@@ -1,6 +1,27 @@
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
+// Paddle variables
+let paddleHeight = 10;
+let paddleWidth = 75;
+let paddleX = (canvas.width-paddleWidth) / 2;
+let rightPressed = false;
+let leftPressed = false;
+
+// Ball variables
+let ballRadius = 10;
+let ballColor = "#0095DD";
+let x = canvas.width / 2;
+let y = canvas.height - 30;
+let dx = 2;
+let dy = -2;
+
+
+//======================= Event Listeners =======================
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+
 //======================= Blocks =======================
 function drawRectangle () {
   ctx.beginPath();
@@ -13,10 +34,8 @@ function drawRectangle () {
   ctx.closePath();
 }
 
-//======================= Ball =======================
-let ballRadius = 10;
-let ballColor = "#0095DD";
 
+//======================= Ball =======================
 function drawBall() {
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI*2);
@@ -24,6 +43,7 @@ function drawBall() {
   ctx.fill();
   ctx.closePath();
 };
+
 
 //======================= Randomizers =======================
 function randomColor() {
@@ -49,19 +69,8 @@ function randomColor() {
   return color;
 }
 
-function randomInteger() {
-  return Math.floor((Math.random() * 20) + 5);
-} 
-
 
 //======================= Paddle =======================
-let paddleHeight = 10;
-let paddleWidth = 75;
-let paddleX = (canvas.width-paddleWidth) / 2;
-
-let rightPressed = false;
-let leftPressed = false;
-
 function drawPaddle() {
   ctx.beginPath();
   ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
@@ -88,27 +97,34 @@ function keyUpHandler(e) {
   }
 }
 
-//======================= Draw =======================
-let x = canvas.width / 2;
-let y = canvas.height - 30;
-let dx = 2;
-let dy = -2;
 
+//======================= Draw =======================
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBall();
-  // Ball Bounce
+
+  // Ball Horizontal Movement
   if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
     dx = -dx;
     ballColor = randomColor();
-    // ballRadius = randomInteger();
   }
 
-  if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+  // Ball Vertical Movement
+  if(y + dy < ballRadius) {
     dy = -dy;
     ballColor = randomColor();
-    // ballRadius = randomInteger();
-  }
+  } else if(y + dy > canvas.height-ballRadius) {
+
+    // Bounce off of paddle
+    if(x > paddleX && x < paddleX + paddleWidth) {
+      dy = -dy;
+    } else {
+      // Ball not caught.
+      alert("GAME OVER");
+      document.location.reload();
+      clearInterval(interval);
+    }
+  };
 
   x += dx;
   y += dy;
@@ -116,14 +132,12 @@ function draw() {
   // Paddle movement
   drawPaddle();
   
-  if(rightPressed) {
+  if(rightPressed && paddleX < canvas.width - paddleWidth) {
     paddleX += 7;
   }
-  else if(leftPressed) {
+  else if(leftPressed && paddleX > 0) {
     paddleX -= 7;
   }
 };
 
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
-setInterval(draw, 10);
+let interval = setInterval(draw, 10);
