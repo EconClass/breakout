@@ -1,5 +1,6 @@
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
+let score = 0;
 
 // Paddle variables
 let paddleHeight = 10;
@@ -29,6 +30,7 @@ const brickOffsetLeft = 30;
 //======================= Event Listeners =======================
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+document.addEventListener("mousemove", mouseMoveHandler, false);
 
 
 //======================= Blocks =======================
@@ -106,6 +108,13 @@ function keyUpHandler(e) {
   }
 }
 
+function mouseMoveHandler(e) {
+  let relativeX = e.clientX - canvas.offsetLeft;
+  if(relativeX > 0 && relativeX < canvas.width) {
+    paddleX = relativeX - paddleWidth / 2;
+  }
+}
+
 
 //======================= Bricks =======================
 
@@ -142,11 +151,27 @@ function collisionDetection() {
       if(b.status == 1) {
         if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
           dy = -dy;
+          ballColor = randomColor();
           b.status = 0;
+          score++;
+          if(score == brickRowCount*brickColumnCount) {
+            alert("YOU WIN, CONGRATULATIONS!");
+            document.location.reload();
+            clearInterval(interval); // Needed for Chrome to end game
+          }
         }
       }
     }
   }
+}
+
+
+//======================= Score =======================
+
+function drawScore() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "white";
+  ctx.fillText(`Score: ${score}`, 8, 20);
 }
 
 
@@ -156,6 +181,7 @@ function draw() {
   drawBricks();
   drawBall();
   drawPaddle();
+  drawScore();
   collisionDetection();
 
   // Ball Horizontal Movement
