@@ -29,6 +29,7 @@ const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
+// let hp = 3;
 
 
 //======================= Event Listeners =======================
@@ -38,16 +39,13 @@ document.addEventListener("mousemove", mouseMoveHandler, false);
 
 
 //======================= Blocks =======================
-function drawRectangle () {
-  ctx.beginPath();
-  ctx.rect(20, 40, 50, 50);
-  ctx.fillStyle = "#FF0000";
-  ctx.fill();
-  // STROKE alternative to fill
-  // ctx.strokeStyle = "rgba(0, 0, 255, 0.5)";
-  // ctx.stroke();
-  ctx.closePath();
-}
+// function drawRectangle() {
+//   ctx.beginPath();
+//   ctx.rect(20, 40, 50, 50);
+//   ctx.fillStyle = "#FF0000";
+//   ctx.fill();
+//   ctx.closePath();
+// }
 
 
 //======================= Ball =======================
@@ -140,24 +138,34 @@ function mouseMoveHandler(e) {
 
 //======================= Bricks =======================
 let bricks = [];
+let levelCap = 0;
 for(let c = 0; c < brickColumnCount; c++) {
   bricks[c] = [];
   for(let r = 0; r < brickRowCount; r++) {
-    bricks[c][r] = { x: 0, y: 0, status: 1 };
+    let brickLives = randomNonZeroInteger(1,4);
+    bricks[c][r] = { x: 0, y: 0, status: brickLives };
+    levelCap += brickLives;
   }
 }
 
 function drawBricks() {
+  const brickColors = [
+    'hsla(330, 100%, 58%, 0.92)',
+    'hsla(147, 100%, 58%, 0.92)',
+    'hsla(57, 100%, 58%, 0.92)'
+  ];
+
   for(let c = 0; c < brickColumnCount; c++) {
     for(let r = 0; r < brickRowCount; r++) {
-      if(bricks[c][r].status == 1) {
+      if(bricks[c][r].status > 0) {
         let brickX = (c * (brickWidth+brickPadding)) + brickOffsetLeft;
         let brickY = (r * (brickHeight+brickPadding)) + brickOffsetTop;
+        let color = brickColors[bricks[c][r].status - 1];
         bricks[c][r].x = brickX;
         bricks[c][r].y = brickY;
         ctx.beginPath();
         ctx.rect(brickX, brickY, brickWidth, brickHeight);
-        ctx.fillStyle = 'hsla(330, 100%, 58%, 0.92)';
+        ctx.fillStyle = color;
         ctx.fill();
         ctx.closePath();
       }
@@ -169,13 +177,13 @@ function collisionDetection() {
   for(let c = 0; c < brickColumnCount; c++) {
     for(let r = 0; r < brickRowCount; r++) {
       let b = bricks[c][r];
-      if(b.status == 1) {
+      if(b.status > 0) {
         if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
           dy = -dy;
           ballColor = randomColor();
-          b.status = 0;
+          b.status--;
           score++;
-          if(score == brickRowCount * brickColumnCount) {
+          if(score == levelCap) {
             alert("YOU WIN, CONGRATULATIONS!");
             document.location.reload();
           }
