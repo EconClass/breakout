@@ -1,3 +1,4 @@
+// Canvas initialization
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -60,27 +61,36 @@ function drawBall() {
 
 
 //======================= Randomizers =======================
-function randomColor() {
+function randomHex() {
+  let letters = '0123456789ABCDEF';
+  let color = '#';
 
-  // Random HEX
-  // let letters = '0123456789ABCDEF';
-  // let color = '#';
-  // for (let i = 0; i < 6; i++) {
-  //   color += letters[Math.floor(Math.random() * 16)];
-  // }
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  
+  return color;
+}
 
-  // Random RGBA
-  // let red = Math.floor(Math.random() * 255);
-  // let blue = Math.floor(Math.random() * 255);
-  // let green = Math.floor(Math.random() * 255);
+function randomRGBA() {
+  let red = Math.floor(Math.random() * 255);
+  let blue = Math.floor(Math.random() * 255);
+  let green = Math.floor(Math.random() * 255);
 
-  // let color = `rgba(${red}, ${blue}, ${green}, 0.67)`;
+  let color = `rgba(${red}, ${blue}, ${green}, 0.87)`;
 
-  // Random HSLA
+  return color;
+}
+
+function randomHSLA() {
   let hue = Math.floor(Math.random() * 360);
   let color = `hsla(${hue}, 100%, 50%, 0.87)`;
 
   return color;
+}
+
+function randomColor() {
+  return randomHSLA();
 }
 
 function randomNonZeroInteger(min, max) {
@@ -88,6 +98,7 @@ function randomNonZeroInteger(min, max) {
   if (value == 0) {
     value++
   }
+
   return value;
 }
 
@@ -128,7 +139,6 @@ function mouseMoveHandler(e) {
 
 
 //======================= Bricks =======================
-
 let bricks = [];
 for(let c = 0; c < brickColumnCount; c++) {
   bricks[c] = [];
@@ -177,7 +187,6 @@ function collisionDetection() {
 
 
 //======================= Game Mechanics =======================
-
 function drawScore() {
   ctx.font = "16px Arial";
   ctx.fillStyle = "white";
